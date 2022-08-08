@@ -38,22 +38,31 @@ else:
 index = pt.IndexFactory.of(indexref)
 print('index ref created')
 
-# Setup 1 : BM25 %1000 >> monoT5%50 >> duoT5
+# # Setup 1 : BM25 %1000 >> monoT5%50 >> duoT5
 bm25 = pt.BatchRetrieve(index, wmodel="BM25") % 1000
 mono_pipeline = bm25 >> pt.text.get_text(dataset, "text") >> monoT5 % 50
 duo_pipeline = mono_pipeline % 50 >> duoT5
 
-# Setup 2 : BM25 %1000 >> duoT5 %50
+#Setup 2 : BM25 %1000 >> duoT5 %50
 # bm25 = pt.BatchRetrieve(index, wmodel="BM25") % 1000
 # duo_pipeline = bm25 >> pt.text.get_text(dataset, "text") >> duoT5 % 50
 #
-print(pt.Experiment(
-  [
-   duo_pipeline,
-  ],
-    topics,
-    qrels,
-  names=["BM25 >> monoT5 >> duoT5"],
-  eval_metrics=["map"],
-  # save_dir="./"
-))
+
+
+def get_trec_res(ranker, df):
+
+  results = ranker( df )  # get the results for the query or queries
+
+  # with_labels = results.merge(qrels, on=["qid", "docno"], how="left").fillna(0)  # left outer join with the qrels
+  results['Q0']="Q0"
+  results['pyterrier']="pyterrier"
+  results_new = results[['qid','Q0','docid','rank','score','pyterrier']]
+  results_new_sort = results_new.sort_values(['qid','rank'],ascending=True)
+  return results_new_sort
+
+# res_file_to_save
+res_file_duot5 = get_trec_res(duo_pipeline,topics)
+
+
+res_file_duot5.to_csv('res.duot5.50.score',sep='\t',index=False,header=False,encoding='utf-8')
+

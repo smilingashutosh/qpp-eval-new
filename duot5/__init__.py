@@ -132,11 +132,11 @@ class DuoT5ReRanker(TransformerBase):
                 # print(f"qid: {qid} did1: {did1} did2: {did2} score: {score}")
                 scores[qid, did1] += score
                 scores[qid, did2] += (1 - score)
-            with open('score.logsoftmax.tsv', 'a', encoding='utf-8') as f1:
+            with open('duoT5.50.score.logsoftmax.tsv', 'a', encoding='utf-8') as f1:
                 for (qid, did1, did2), score in zip(batch['ids'], result):
                     f1.write(qid + "\t" + did1 + "\t" + did2 +"\t" + format(score,'.10f') + "\t" + "logsoft" + "\n" )
 
-            with open('score.softmax.tsv', 'a', encoding='utf-8') as f2:
+            with open('duoT5.50.score.softmax.tsv', 'a', encoding='utf-8') as f2:
                 for (qid, did1, did2), score in zip(batch['ids'], result_softmax):
                     f2.write(qid + "\t" + did1 + "\t" + did2 +"\t" + format(score,'.10f') + "\t" + "softmax" + "\n" )
 
