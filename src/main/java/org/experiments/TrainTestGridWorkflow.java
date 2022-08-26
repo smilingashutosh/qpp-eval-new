@@ -41,7 +41,12 @@ public class TrainTestGridWorkflow extends NQCCalibrationWorkflow {
 
     public static void main(String[] args) {
         final String queryFile = "data/trecdl1920.queries";
-        final String resFile = "msmarco_runs/colbert.reranked.res.trec";
+//       final String resFile = "msmarco_runs/colbert.reranked.res.trec";
+//        final String resFile = "msmarco_runs/bm25.colbert/colbert.reranked.res.trec.mmnorm"; //wig result  0.1104
+//          final String resFile = "msmarco_runs/bm25.1000.mt5.50/res.bm25.1000.monot5.50.mmnorm"; //monot5 res min-max wig 0.0864  avgIDF 0.2707
+//        final String resFile = "msmarco_runs/bm25.1000.mt5.50/res.bm25.1000.monot5.50.mmnorm.log"; //monot5 res log (1+ min-max)  
+//         final String resFile = "msmarco_runs/bm25.1000.mt5.50/res.bm25.1000.monot5.50";
+        final String resFile = "msmarco_runs/bm25.1000.mt5.50.dt5/res.bm25.1000.mt5.50.dt5.50.mmnorm"; //duot5 res min-max wig 0.1055 avgIDF 0.2600
 //        final String resFile = "msmarco_runs/trecdl.monot5.rr.pos-scores.res";
 //        final String resFile = "trecdl.monot5.rr.pos-scores.res";
         
@@ -50,8 +55,9 @@ public class TrainTestGridWorkflow extends NQCCalibrationWorkflow {
         try {
             QPPMethod[] qppMethods = {
 //                    new NQCSpecificity(Settings.getSearcher()),
-                    //new WIGSpecificity(Settings.getSearcher()),
-                    new OddsRatioSpecificity(Settings.getSearcher(), 0.2f), // 20% as top and bottom
+//                    new WIGSpecificity(Settings.getSearcher()),
+                    new AvgIDFSpecificity(Settings.getSearcher()),
+//                    new OddsRatioSpecificity(Settings.getSearcher(), 0.2f), // 20% as top and bottom
             };
 
             for (QPPMethod qppMethod: qppMethods) {

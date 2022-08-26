@@ -184,8 +184,8 @@ public class QPPEvaluator {
         bw.flush();
         bw.close();
         fw.close();
-        System.out.println("resFile:"+resFile);
-        System.out.println("qrelsFile:"+qrelsFile);
+//        System.out.println("resFile:"+resFile);
+//        System.out.println("qrelsFile:"+qrelsFile);
         Evaluator evaluator = new Evaluator(qrelsFile, resFile); // load ret and rel
         return evaluator;
     }

@@ -24,6 +24,8 @@ import org.correlation.PearsonCorrelation;
 public class NQCCalibrationWorkflow {
     Similarity sim = new LMDirichletSimilarity(1000);
     protected Map<String, TopDocs> topDocsMap = new HashMap<>();
+    protected Map<String, List<ResDocs>> resDocsMap = new HashMap<>(); //pairwise resfile changes
+    protected Map<String, List<PairDocs>> pairDocsMap = new HashMap<>(); //pairwise resfile changes
     protected QPPEvaluator qppEvaluator;
     protected Evaluator evaluator;
     protected QPPMethod qppMethod;
@@ -52,6 +54,21 @@ public class NQCCalibrationWorkflow {
                 Settings.getCorrelationMetric(), Settings.getSearcher(), Settings.getNumWanted());
         queries = qppEvaluator.constructQueries(queryFile, Settings.tsvMode);
         topDocsMap = loadResFile(new File(resFile));
+//        resDocsMap = loadResDocFile(new File(resFile));  //pairwise resfile changes
+        //System.out.println("#### : " + topDocsMap.size());
+        evaluator = qppEvaluator.executeDummy(queries, sim,
+                Settings.getNumWanted(), Settings.getQrelsFile(),
+                Settings.RES_FILE, topDocsMap);
+    }
+    
+    public NQCCalibrationWorkflow(String pairScoreFile, String queryFile, String resFile) throws Exception {
+        qppEvaluator = new QPPEvaluator(
+                Settings.getProp(),
+                Settings.getCorrelationMetric(), Settings.getSearcher(), Settings.getNumWanted());
+        queries = qppEvaluator.constructQueries(queryFile, Settings.tsvMode);
+        topDocsMap = loadResFile(new File(resFile));
+        resDocsMap = loadResDocFile(new File(resFile));  //pairwise resfile changes
+        pairDocsMap = loadPairDocFile(new File(pairScoreFile));  //pairwise resfile changes
         //System.out.println("#### : " + topDocsMap.size());
         evaluator = qppEvaluator.executeDummy(queries, sim,
                 Settings.getNumWanted(), Settings.getQrelsFile(),
@@ -107,6 +124,85 @@ public class NQCCalibrationWorkflow {
         }
         return new TopDocs(new TotalHits(nret, TotalHits.Relation.EQUAL_TO), sd);
     }
+    
+  //pairwise resfile changes
+    public Map<String, List<ResDocs>> loadResDocFile(File resFile) {
+        Map<String, List<ResDocs>> resDocsMap = new HashMap<>();
+        List<ResDocs> rtuples_new = new ArrayList<ResDocs>();
+        try {
+            List<String> lines = FileUtils.readLines(resFile, UTF_8);
+
+            String prev_qid = null, qid = null;
+//            RetrievedResults rr = null;
+            ResDocs listval = null;
+            int i = 0;
+
+            for (String line: lines) {
+                String[] tokens = line.split("\\s+");
+                qid = tokens[0];
+
+                if (prev_qid!=null && !prev_qid.equals(qid)) {
+//                	System.out.println("rtuples_new:"+rtuples_new);
+                	resDocsMap.put(prev_qid, rtuples_new);
+                	rtuples_new = new ArrayList<ResDocs>();                	
+                }
+
+                listval = new ResDocs(qid,tokens[2],tokens[3],tokens[4]);
+//                System.out.println("listval:" + listval.toString());
+                rtuples_new.add(listval);  
+//                System.out.println("rtuples_new:" + rtuples_new);               
+                prev_qid = qid;
+                i++;
+            }
+            
+            if (qid!=null)
+            	resDocsMap.put(prev_qid, rtuples_new);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return resDocsMap;
+    }
+    
+    public Map<String, List<PairDocs>> loadPairDocFile(File pairScoreFile) {
+        Map<String, List<PairDocs>> pairDocsMap = new HashMap<>();
+        List<PairDocs> rtuples_new = new ArrayList<PairDocs>();
+        try {
+            List<String> lines = FileUtils.readLines(pairScoreFile, UTF_8);
+
+            String prev_qid = null, qid = null;
+//            RetrievedResults rr = null;
+            PairDocs listval = null;
+            int i = 0;
+
+            for (String line: lines) {
+                String[] tokens = line.split("\\s+");
+                qid = tokens[0];
+
+                if (prev_qid!=null && !prev_qid.equals(qid)) {
+//                	System.out.println("rtuples_new:"+rtuples_new);
+                	pairDocsMap.put(prev_qid, rtuples_new);
+                	rtuples_new = new ArrayList<PairDocs>();                	
+                }
+
+                listval = new PairDocs(qid,tokens[1],tokens[2]);
+//                System.out.println("listval:" + listval.toString());
+                rtuples_new.add(listval);  
+//                System.out.println("rtuples_new:" + rtuples_new);               
+                prev_qid = qid;
+                i++;
+            }
+            
+            if (qid!=null)
+            	pairDocsMap.put(prev_qid, rtuples_new);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return pairDocsMap;
+    }
+
+
 
     public double computeCorrelation(List<TRECQuery> queries, QPPMethod qppMethod, int qppTopK) {
         int numQueries = queries.size();
@@ -174,7 +270,7 @@ public class NQCCalibrationWorkflow {
     }
 
     public void averageAcrossEpochs() {
-        final int NUM_EPOCHS = 2; // change it to 30!
+        final int NUM_EPOCHS = 30; // change it to 30!
         double avg = 0;
         for (int i=1; i <= NUM_EPOCHS; i++) {
             System.out.println("Random split: " + i);

@@ -29,11 +29,14 @@ public class NQCSpecificityCalibrated extends BaseIDFSpecificity {
 
     @Override
     public double computeSpecificity(Query q, RetrievedResults retInfo, TopDocs topDocs, int k) {
+    	k = Math.min(k,topDocs.scoreDocs.length); //to handle cases where less than topk docs available for a query
         return computeNQC(q, retInfo, k);
     }
 
     private double computeNQC(Query q, RetrievedResults topDocs, int k) {
+    
         double[] rsvs = topDocs.getRSVs(k);
+//        System.out.println("rsvs.length: "+rsvs.length);
         double mean = Arrays.stream(rsvs).average().getAsDouble();
 
         double avgIDF = 0;
@@ -48,12 +51,14 @@ public class NQCSpecificityCalibrated extends BaseIDFSpecificity {
         for (double rsv: rsvs) {
             double factor_1 = avgIDF;
             // only works for a square function; beta is to be even; we force it to be even
+            if (rsv != 0) { //if rsvs are min-max normalized
             double factor_2 = (rsv - mean)*(rsv - mean)/rsv;
 
             double prod = Math.pow(factor_1, alpha) * Math.pow(factor_2, beta); // this is actually 2*beta
             prod = Math.pow(prod, gamma);
 
-            nqc += prod;
+            nqc += prod;}
+            
         }
         nqc /= (double)rsvs.length;
 

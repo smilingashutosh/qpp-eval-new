@@ -22,8 +22,11 @@ import org.apache.lucene.search.TotalHits;
 
 public class UEFSpecificity implements QPPMethod {
     BaseIDFSpecificity qppMethod;
-
-    static Random rnd = new Random(Settings.SEED);
+    
+    static final int SEED = 31415;  //fix the changes
+//    static Random rnd = new Random(Settings.SEED); 
+    static Random rnd = new Random(SEED);
+    
     static final int NUM_SAMPLES = 10;
 
     public UEFSpecificity(BaseIDFSpecificity qppMethod) {
@@ -34,6 +37,7 @@ public class UEFSpecificity implements QPPMethod {
 //        ScoreDoc[] sampledScoreDocs = new ScoreDoc[k];
         ScoreDoc[] sampledScoreDocs = new ScoreDoc[Math.min(topDocs.scoreDocs.length, k)];
         List<ScoreDoc> sdList = new ArrayList(Arrays.asList(topDocs.scoreDocs));
+//        System.out.println("rnd:"+rnd);
         Collections.shuffle(sdList, rnd);
         sampledScoreDocs = sdList.subList(0, Math.min(topDocs.scoreDocs.length, k)).toArray(sampledScoreDocs);
         //+++LUCENE_COMPATIBILITY: Sad there's no #ifdef like C!
