@@ -1,3 +1,13 @@
+This project is an incremental work on top of existing QPP evaluation framework developed by Dr Debasis Ganguly.
+
+![image](https://user-images.githubusercontent.com/43513330/188109962-b856e5c5-f3e3-47b4-9eeb-7b5d2c2ab4eb.png)
+
+
+
+
+
+
+
 # QPP-Evaluator
 
 A common framework, implemented in Java, to evaluate and compare between Query Performance Prediction (QPP) approaches with different ground-truth (reference) lists.
