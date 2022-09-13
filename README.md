@@ -1,3 +1,16 @@
+# Work done as part of MS project at university of Glasgow
+This project is an incremental work on top of existing QPP evaluation framework developed by Dr Debasis Ganguly. The technical architecture as implemented is decribed below. Please refer /duot5 for python side of work.
+
+![image](https://user-images.githubusercontent.com/43513330/188109962-b856e5c5-f3e3-47b4-9eeb-7b5d2c2ab4eb.png)
+
+
+We implement the proposed QPP method, `Paired Rank-preference Calibrated QPP' (PRC-QPP), using a mix of technology and languages. The technical architecture depicting the implementation includes inputs and outputs in above figure. We already have a setup in Java where we implement all the standard QPP baselines such as NQC, WIG and UEF; hence we extend our new QPP method, \pior, to the same setup for appropriate comparison and swift implementation. In addition, we require pairwise inferences between top-k documents using the duoT5 IR model. Since we make changes in the pyterrier implementation of the duoT5 model, we use the python setup to generate pairwise inferences between top-k documents.
+
+
+
+
+Below part is copied from the existing work by Dr Debasis Ganguly.
+
 # QPP-Evaluator
 
 A common framework, implemented in Java, to evaluate and compare between Query Performance Prediction (QPP) approaches with different ground-truth (reference) lists.
